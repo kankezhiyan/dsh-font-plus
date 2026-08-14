@@ -1,7 +1,7 @@
 {
   "name": "dsh-font",
-  "version": "1.0.0",
-  "description": "Font switcher for DeepSeek Harness Web GUI: 30+ UI fonts (Chinese / Latin / WPS classics) and 12 code fonts, with CJK-Latin pairing stacks, instant apply and localStorage persistence",
+  "version": "1.1.0",
+  "description": "Font switcher for DeepSeek Harness Web GUI: 99 UI fonts (CJK sans/serif/kai-fangsong/display + Latin serif/sans/display, WPS classics included) and 31 code fonts, with CJK-Latin pairing stacks, instant apply and localStorage persistence",
   "license": "MIT",
   "author": "user",
   "type": "module",

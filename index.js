@@ -9,12 +9,12 @@
  * loader row ({ id: font, name: 'dsh-font' }) into the hosting profile's
  * composition, exactly like the rows the base bundles contribute.
  *
- * The row's dictionaries are registered with the client `locale` service
- * (provided by @deepseek-ai/dsh-client-locale) and its row store comes from
- * @deepseek-ai/dsh-client-store's `defineStore`; no host services are used.
- * The font choice is persisted in localStorage, because the Host settings
- * wire only exposes an allowlisted set of namespaces to browser clients, so
- * a third-party namespace would answer `settings-not-exposed`.
+ * The section's dictionaries are registered with the client `locale` service
+ * (provided by @deepseek-ai/dsh-client-locale) and its section store comes
+ * from @deepseek-ai/dsh-client-store's `defineStore`; no host services are
+ * used. The font choice is persisted in localStorage, because the Host
+ * settings wire only exposes an allowlisted set of namespaces to browser
+ * clients, so a third-party namespace would answer `settings-not-exposed`.
  */
 
 /** Host loader entry for the browser implementation exported from `./client`. */

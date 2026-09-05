@@ -16,7 +16,7 @@
 # 2. 在 profile 目录安装
 cd $env:USERPROFILE\.dsh\profiles\web   # 或你的桌面/网页 profile 目录（见其 package.json）
 pnpm install --no-frozen-lockfile
-# 3. 重启 dsh，然后在 设置 → 常规 → 字体 中选择
+# 3. 重启 dsh，然后在 设置 → 全局字体 标签页中选择
 ```
 
 > **版本兼容**：v1.2.0 面向当前 DSH 生成（客户端模块基座 @deepseek-ai/dsh-client-store
@@ -26,7 +26,8 @@ pnpm install --no-frozen-lockfile
 
 ## 使用
 
-打开 **设置 → 常规**，找到「字体」行：
+插件在设置面板中注册自己的分区页：打开 **设置**，左侧导航会出现
+**「全局字体」** 标签页（排在「常规」「模型」之后）：
 
 - **界面字体**：99 个选项，按下拉分组：默认 / 中文黑体 / 中文宋体 /
   中文楷体仿宋 / 中文手写创意 / 西文衬线 / 西文无衬线 / 西文展示手写
@@ -119,16 +120,16 @@ node --check client.js   # 语法检查（零构建，手写 CJS bundle）
 - `cordis.patch.yml` — host 侧 loader 入口（`id: font`，`name: dsh-font`）
 - `index.js` — host 半部（no-op）
 - `client.js` — 浏览器半部（全部功能）：外部依赖仅 `react` / `react/jsx-runtime`
-  与 `@deepseek-ai/dsh-client-store`（`defineStore`），服务注入 `slots` + `locale`
+  与 `@deepseek-ai/dsh-client-store`（`defineStore`），服务注入 `slots` + `locale`；
+  在设置面板注册自己的 `settings.section` 分区（`id: fonts`，`order: 20`，标签「全局字体」）
 
 变更记录：
 
-- **v1.2.1** 修复实机崩溃：给 `<style>` 打标记时曾写 `el.dataset = el.dataset || {}`，
-  而浏览器里 `HTMLElement.dataset` 是只读 getter，整体赋值在 bundle 严格模式下抛
-  `TypeError`，导致插件激活失败（"renderer boot failed (plugins: dsh-font)"）。
-  已改为只写 `el.dataset.plugin` / `el.dataset.pluginCss`。
 - **v1.2.0** 适配当前 DSH：`defineStore` 改从 `@deepseek-ai/dsh-client-store` 引入
   （原 `@deepseek-ai/dsh-client-runtime` 已不存在，正是旧版在当前版本启动崩溃的原因）；
   `dsh.client.inject` 只保留仍存在的提供方；样式行改用当前主题别名 token，并给注入的
   `<style>` 打上 `data-plugin` 标记以便 HMR 驱动管理。
+  不再占用「常规」分区内的行：改为在设置导航中新增独立标签页
+  「全局字体」（`settings.section`，`id: fonts`，`order: 20`），两个字体下拉、
+  预览条与说明整体移入该页；字典新增 `font.nav` / `font.title` / `font.desc`。
 - **v1.1.0** 扩充到 99 个界面字体 + 31 个代码字体、分组下拉、字体授权声明。

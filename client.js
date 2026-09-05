@@ -2,7 +2,8 @@
 //
 // Hand-written CJS + ModuleLoader wrapper (zero build steps, the same shape
 // as the shipped client bundles in this DSH generation): registers one
-// settings row (two selects: UI font + code font) into Settings → General,
+// Settings section of its own — the "全局字体" (Fonts) tab in the settings
+// nav — holding the UI and code font selects.
 // applies the choice by overriding the two font CSS variables that the whole
 // web shell derives every text token from, and persists in localStorage.
 //
@@ -41,7 +42,7 @@ window.__ModuleLoader__.load({
 		let _client_store = require("@deepseek-ai/dsh-client-store");
 
 		//#region dsh-font: definitions
-		/** The settings row's locale namespace. */
+		/** The settings section's locale namespace. */
 		const SETTINGS_NS = "settings.font";
 		/** localStorage key holding the UI font id. */
 		const STORAGE_UI_KEY = "dsh-font:ui";
@@ -216,12 +217,13 @@ window.__ModuleLoader__.load({
 
 		/** Simplified Chinese dictionary (the key-set source of truth). */
 		const zh = {
-			"font.title": "字体",
+			"font.nav": "全局字体",
+			"font.title": "全局字体",
+			"font.desc": "界面与代码字体：界面字体作用于正文、按钮、侧边栏与标题，代码字体作用于代码块、终端与 JSON。仅使用本机已安装的字体，未安装的字体会自动回退，不影响显示。",
 			"font.ui": "界面字体",
 			"font.code": "代码字体",
 			"font.default": "默认",
 			"font.preview": "预览：设计字体 123 AaBb",
-			"font.hint": "只使用本机已安装的字体；未安装的字体会自动回退，不影响显示",
 			"font.group.default": "默认",
 			"font.group.zh-sans": "中文 · 黑体",
 			"font.group.zh-serif": "中文 · 宋体",
@@ -234,12 +236,13 @@ window.__ModuleLoader__.load({
 
 		/** English dictionary, checked complete against the zh key set. */
 		const en = {
+			"font.nav": "Fonts",
 			"font.title": "Fonts",
+			"font.desc": "Fonts for the UI and for code: the UI font styles body text, buttons, the sidebar and headings; the code font styles code blocks, the terminal and JSON. Only fonts installed on this machine are used — missing fonts fall back automatically.",
 			"font.ui": "UI font",
 			"font.code": "Code font",
 			"font.default": "Default",
 			"font.preview": "Preview: 设计字体 123 AaBb",
-			"font.hint": "Only fonts installed on this machine are used; missing fonts fall back automatically",
 			"font.group.default": "Default",
 			"font.group.zh-sans": "Chinese · Sans",
 			"font.group.zh-serif": "Chinese · Serif",
@@ -323,23 +326,32 @@ window.__ModuleLoader__.load({
 		}
 		//#endregion
 
-		//#region dsh-font: settings row
-		/** Inline styles for the row, token-driven like the rest of the shell. */
+		//#region dsh-font: settings section
+		/** Inline styles for the section, token-driven like the rest of the shell. */
 		const styles = {
-			group: {
-				borderBottom: "1px solid var(--dsw-alias-border-l2)",
+			page: {
+				boxSizing: "border-box",
+				width: "100%",
+				maxWidth: "720px",
+				color: "var(--dsw-alias-label-primary)",
 				display: "flex",
 				flexDirection: "column",
-				gap: "10px",
-				padding: "16px 0"
+				gap: "12px"
 			},
-			title: {
+			heading: {
 				color: "var(--dsw-alias-label-primary)",
+				margin: 0,
+				fontSize: "16px",
+				fontWeight: 500,
+				lineHeight: "24px"
+			},
+			desc: {
+				color: "var(--dsw-alias-label-tertiary)",
+				margin: 0,
 				fontSize: "14px",
-				fontWeight: 400,
 				lineHeight: "22px"
 			},
-			row: {
+			field: {
 				display: "flex",
 				alignItems: "center",
 				gap: "10px",
@@ -372,11 +384,6 @@ window.__ModuleLoader__.load({
 				borderRadius: "8px",
 				background: "var(--dsw-alias-bg-layer-1)",
 				border: "1px solid var(--dsw-alias-border-l1)"
-			},
-			hint: {
-				color: "var(--dsw-alias-label-secondary)",
-				fontSize: "12px",
-				lineHeight: "18px"
 			}
 		};
 
@@ -408,7 +415,7 @@ window.__ModuleLoader__.load({
 				children: option.label
 			}, option.id);
 			return (0, react_jsx_runtime.jsxs)("div", {
-				style: styles.row,
+				style: styles.field,
 				children: [
 					(0, react_jsx_runtime.jsx)("span", { style: styles.label, children: label }),
 					(0, react_jsx_runtime.jsx)("select", {
@@ -428,19 +435,19 @@ window.__ModuleLoader__.load({
 		}
 
 		/**
-		 * Font row registered into the Settings → General item slot: UI font
-		 * and code font selects plus a live preview strip. Selection applies
-		 * instantly and persists to localStorage.
+		 * The plugin's own Settings section — the "全局字体" (Fonts) tab registered
+		 * into settings.section: UI font and code font selects plus a live preview
+		 * strip. Selection applies instantly and persists to localStorage.
 		 */
-		function FontRow({ t, setUi, setCode, useStore }) {
+		function FontsSection({ t, useStore, setUi, setCode }) {
 			const ui = useStore((s) => s.ui);
 			const code = useStore((s) => s.code);
 			const uiFont = UI_FONTS.find((f) => f.id === ui) || null;
-			const codeFont = CODE_FONTS.find((f) => f.id === code) || null;
 			return (0, react_jsx_runtime.jsxs)("div", {
-				style: styles.group,
+				style: styles.page,
 				children: [
-					(0, react_jsx_runtime.jsx)("div", { style: styles.title, children: t("font.title") }),
+					(0, react_jsx_runtime.jsx)("h2", { style: styles.heading, children: t("font.title") }),
+					(0, react_jsx_runtime.jsx)("p", { style: styles.desc, children: t("font.desc") }),
 					(0, react_jsx_runtime.jsx)(FontSelect, {
 						label: t("font.ui"),
 						value: ui,
@@ -461,10 +468,6 @@ window.__ModuleLoader__.load({
 							fontFamily: uiFont !== null && uiFont.stack !== null ? uiFont.stack : undefined
 						},
 						children: t("font.preview")
-					}),
-					(0, react_jsx_runtime.jsx)("div", {
-						style: styles.hint,
-						children: t("font.hint")
 					})
 				]
 			});
@@ -473,9 +476,9 @@ window.__ModuleLoader__.load({
 
 		//#region dsh-font: client plugin body
 		/**
-		 * Required services: slots (the Settings → General item seat) and
-		 * locale (row dictionaries). No settings transport is needed —
-		 * persistence is localStorage.
+		 * Required services: slots (the Settings section seat) and locale
+		 * (section dictionaries). No settings transport is needed — persistence
+		 * is localStorage.
 		 */
 		const inject = [
 			"slots",
@@ -483,9 +486,9 @@ window.__ModuleLoader__.load({
 		];
 
 		/**
-		 * Client plugin body: restore the saved fonts, keep the row's store in
-		 * sync, apply on every change, and register the row into
-		 * Settings → General.
+		 * Client plugin body: restore the saved fonts, keep the section store in
+		 * sync, apply on every change, and register the plugin's own Settings
+		 * section — the "全局字体" (Fonts) tab — into settings.section.
 		 * @param ctx - client cordis context.
 		 */
 		function apply(ctx) {
@@ -498,9 +501,13 @@ window.__ModuleLoader__.load({
 			ctx.effect(() => ctx.locale.register(SETTINGS_NS, {
 				zh,
 				en
-			}), "dsh-font: settings row dictionaries");
+			}), "dsh-font: settings section dictionaries");
 
-			// Row store mirror; written only by this plugin's apply actions.
+			// Nav-label translator: section labels are projected through a thunk,
+			// so a locale switch re-labels the nav without re-registering.
+			const t = ctx.locale.bind(SETTINGS_NS);
+
+			// Section store mirror; written only by this plugin's apply actions.
 			const store = (0, _client_store.defineStore)({
 				init: () => ({
 					ui: DEFAULT_FONT,
@@ -524,10 +531,11 @@ window.__ModuleLoader__.load({
 				bound?.sync(uiId, codeId, revision);
 			};
 
-			ctx.slots.inject("settings.general.item", () => ctx.slots.register({
-				name: "settings.general.item",
-				id: "font",
-				order: 40,
+			ctx.slots.inject("settings.section", () => ctx.slots.register({
+				name: "settings.section",
+				id: "fonts",
+				order: 20,
+				label: () => t("font.nav"),
 				store,
 				locale: SETTINGS_NS,
 				inject: (actions) => {
@@ -548,7 +556,7 @@ window.__ModuleLoader__.load({
 						}
 					};
 				}
-			}, FontRow));
+			}, FontsSection));
 		}
 		//#endregion
 
@@ -561,3 +569,4 @@ window.__ModuleLoader__.load({
 		return module.exports;
 	}
 });
+

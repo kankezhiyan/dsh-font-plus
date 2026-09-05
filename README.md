@@ -123,6 +123,10 @@ node --check client.js   # 语法检查（零构建，手写 CJS bundle）
 
 变更记录：
 
+- **v1.2.1** 修复实机崩溃：给 `<style>` 打标记时曾写 `el.dataset = el.dataset || {}`，
+  而浏览器里 `HTMLElement.dataset` 是只读 getter，整体赋值在 bundle 严格模式下抛
+  `TypeError`，导致插件激活失败（"renderer boot failed (plugins: dsh-font)"）。
+  已改为只写 `el.dataset.plugin` / `el.dataset.pluginCss`。
 - **v1.2.0** 适配当前 DSH：`defineStore` 改从 `@deepseek-ai/dsh-client-store` 引入
   （原 `@deepseek-ai/dsh-client-runtime` 已不存在，正是旧版在当前版本启动崩溃的原因）；
   `dsh.client.inject` 只保留仍存在的提供方；样式行改用当前主题别名 token，并给注入的

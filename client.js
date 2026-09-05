@@ -292,7 +292,8 @@ window.__ModuleLoader__.load({
 			if (el === null) {
 				el = document.createElement("style");
 				el.id = STYLE_ID;
-				el.dataset = el.dataset || {};
+				// Note: `HTMLElement.dataset` is a getter-only accessor — never
+				// assign to it; mutate the returned DOMStringMap instead.
 				el.dataset.plugin = PLUGIN_TAG;
 				el.dataset.pluginCss = PLUGIN_CSS_TAG;
 				document.head.appendChild(el);

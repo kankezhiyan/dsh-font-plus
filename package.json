@@ -1,6 +1,6 @@
 {
   "name": "dsh-font",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Font switcher for DeepSeek Harness Web GUI: 99 UI fonts (CJK sans/serif/kai-fangsong/display + Latin serif/sans/display, WPS classics included) and 31 code fonts, with CJK-Latin pairing stacks, instant apply and localStorage persistence",
   "license": "MIT",
   "author": "user",
@@ -34,7 +34,6 @@
     },
     "client": {
       "inject": [
-        "@deepseek-ai/dsh-client-runtime",
         "@deepseek-ai/dsh-client-locale"
       ],
       "platform": "web",
@@ -44,8 +43,7 @@
   "peerDependencies": {
     "react": "^18.2.0",
     "@deepseek-ai/cordis": "^4.0.1",
-    "@deepseek-ai/dsh-client-runtime": "^0.1.0-rc.6",
-    "@deepseek-ai/dsh-client-locale": "^0.1.0-rc.6",
-    "@deepseek-ai/dsh-client-ui-slots": "^0.1.0-rc.6"
+    "@deepseek-ai/dsh-client-store": "^0.1.2-alpha.1",
+    "@deepseek-ai/dsh-client-locale": "^0.1.2-alpha.1"
   }
 }

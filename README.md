@@ -10,12 +10,19 @@
 ## 安装
 
 ```powershell
-# 1. 在 web profile 的 package.json 中注册（dependencies + dsh.profile.bundles）
+# 1. 在 profile 的 package.json 中注册：dependencies 加 "dsh-font": "file:…dsh-font-plus 路径"
+#    并在 dsh.profile.bundles 数组里追加 "dsh-font"（dsh-bundle.patch 会自动把
+#    cordis.patch.yml 里的 loader 行 { id: font, name: 'dsh-font' } 插入组合）
 # 2. 在 profile 目录安装
-cd $env:USERPROFILE\.dsh\profiles\web
+cd $env:USERPROFILE\.dsh\profiles\web   # 或你的桌面/网页 profile 目录（见其 package.json）
 pnpm install --no-frozen-lockfile
-# 3. 重启 dsh web，然后在 设置 → 常规 → 字体 中选择
+# 3. 重启 dsh，然后在 设置 → 常规 → 字体 中选择
 ```
+
+> **版本兼容**：v1.2.0 面向当前 DSH 生成（客户端模块基座 @deepseek-ai/dsh-client-store
+> 0.1.2-alpha 起，桌面发行 2.0.x）。旧的 v1.x 依赖 `@deepseek-ai/dsh-client-runtime`
+> （其 `defineStore` 已并入 `@deepseek-ai/dsh-client-store`），在当前 DSH 上 bundle
+> 物化时会因找不到该模块而在启动期抛错崩溃。
 
 ## 使用
 
@@ -81,9 +88,10 @@ Monaco、Meslo、Courier New、Cousine、更纱黑体 Sarasa Mono SC、
 ## 原理
 
 Web shell 的所有字号 token（`--dsw-font-*`、`--dsw-font-markdown-*`）都引用
-`:root` 上的两个变量；插件注入一个 `<style>` 覆盖这两个变量，一处生效、全局换肤，
-不打包任何字体文件、不联网、不涉及付费字体。选择存于 localStorage
-（`dsh-font:ui` / `dsh-font:code`）。
+`:root` 上的两个变量（`--dsw-font-family` / `--ds-font-family-code`，由当前版本的
+`ui-theme` 基座样式注入）；插件注入一个带 `data-plugin` 标记的 `<style>` 覆盖这两个
+变量，一处生效、全局换肤。不打包任何字体文件、不联网、不涉及付费字体。
+选择存于 localStorage（`dsh-font:ui` / `dsh-font:code`）。
 
 ## License / 字体授权声明
 
@@ -108,6 +116,15 @@ Web shell 的所有字号 token（`--dsw-font-*`、`--dsw-font-markdown-*`）都
 node --check client.js   # 语法检查（零构建，手写 CJS bundle）
 ```
 
-- `cordis.patch.yml` — host 侧 loader 入口（`id: font`）
+- `cordis.patch.yml` — host 侧 loader 入口（`id: font`，`name: dsh-font`）
 - `index.js` — host 半部（no-op）
-- `client.js` — 浏览器半部（全部功能）
+- `client.js` — 浏览器半部（全部功能）：外部依赖仅 `react` / `react/jsx-runtime`
+  与 `@deepseek-ai/dsh-client-store`（`defineStore`），服务注入 `slots` + `locale`
+
+变更记录：
+
+- **v1.2.0** 适配当前 DSH：`defineStore` 改从 `@deepseek-ai/dsh-client-store` 引入
+  （原 `@deepseek-ai/dsh-client-runtime` 已不存在，正是旧版在当前版本启动崩溃的原因）；
+  `dsh.client.inject` 只保留仍存在的提供方；样式行改用当前主题别名 token，并给注入的
+  `<style>` 打上 `data-plugin` 标记以便 HMR 驱动管理。
+- **v1.1.0** 扩充到 99 个界面字体 + 31 个代码字体、分组下拉、字体授权声明。

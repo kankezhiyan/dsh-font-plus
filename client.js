@@ -1,12 +1,20 @@
 // dsh-font — browser half (client plugin bundle).
 //
 // Hand-written CJS + ModuleLoader wrapper (zero build steps, the same shape
-// as the shipped ui-* bundles): registers one settings row (two selects:
-// UI font + code font) into Settings → General, applies the choice by
-// overriding the two font CSS variables that the whole web shell derives
-// every text token from, and persists in localStorage.
+// as the shipped client bundles in this DSH generation): registers one
+// settings row (two selects: UI font + code font) into Settings → General,
+// applies the choice by overriding the two font CSS variables that the whole
+// web shell derives every text token from, and persists in localStorage.
 //
-// Font variables (verified against the built base.css):
+// Bundle contract (verified against the shipped bundles of DSH built on
+// @deepseek-ai/dsh-client-store 0.1.2-alpha): `window.__ModuleLoader__.load`
+// with a factory that receives the platform `require`; react / react/jsx-runtime
+// and @deepseek-ai/dsh-client-store resolve from the shell's frozen module
+// table (store now provides the `defineStore` the old @deepseek-ai/dsh-client-runtime
+// used to export — that package no longer exists in this generation).
+//
+// Font variables (verified against the current ui-theme base, which injects
+// them on `:root`):
 //   :root { --dsw-font-family: ...; --ds-font-family-code: ...; }
 // Every --dsw-font-* token (markdown base, headings, table, xs..xl scale)
 // references --dsw-font-family; every code surface (code blocks, terminal,
@@ -14,6 +22,8 @@
 // variables on `:root, body` restyles the entire GUI with no component
 // changes and no bundled font files — the stacks reference fonts already
 // installed on the system, so nothing is downloaded and nothing is paid for.
+// The injected <style> carries the `data-plugin`/`data-plugin-css` markers
+// the client-modules HMR driver inventories, exactly like shipped bundles.
 //
 // Persistence note: stored in localStorage. DSH's Host settings wire only
 // exposes an allowlisted set of namespaces to browser clients, so a
@@ -28,7 +38,7 @@ window.__ModuleLoader__.load({
 		Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 		let react_jsx_runtime = require("react/jsx-runtime");
 		let _react = require("react");
-		let _runtime_client = require("@deepseek-ai/dsh-client-runtime/client");
+		let _client_store = require("@deepseek-ai/dsh-client-store");
 
 		//#region dsh-font: definitions
 		/** The settings row's locale namespace. */
@@ -39,6 +49,10 @@ window.__ModuleLoader__.load({
 		const STORAGE_CODE_KEY = "dsh-font:code";
 		/** The injected <style> element's id (HMR driver inventories it). */
 		const STYLE_ID = "dsh-font-style";
+		/** `data-plugin` marker matching this module's identity, as shipped bundles use. */
+		const PLUGIN_TAG = "dsh-font";
+		/** `data-plugin-css` marker keying the style record inside the module (HMR). */
+		const PLUGIN_CSS_TAG = "dsh-font/style";
 		/** Sentinel meaning "no override — follow the built-in font". */
 		const DEFAULT_FONT = "default";
 
@@ -278,6 +292,9 @@ window.__ModuleLoader__.load({
 			if (el === null) {
 				el = document.createElement("style");
 				el.id = STYLE_ID;
+				el.dataset = el.dataset || {};
+				el.dataset.plugin = PLUGIN_TAG;
+				el.dataset.pluginCss = PLUGIN_CSS_TAG;
 				document.head.appendChild(el);
 			}
 			return el;
@@ -339,8 +356,8 @@ window.__ModuleLoader__.load({
 				height: "32px",
 				padding: "0 10px",
 				borderRadius: "8px",
-				border: "1px solid var(--dsw-alias-border-l2)",
-				background: "var(--dsw-alias-button-elevated-fill)",
+				border: "1px solid var(--dsw-alias-border-l1)",
+				background: "var(--dsw-alias-bg-layer-1)",
 				color: "var(--dsw-alias-label-primary)",
 				fontSize: "13px",
 				font: "inherit",
@@ -352,11 +369,11 @@ window.__ModuleLoader__.load({
 				lineHeight: "28px",
 				padding: "8px 12px",
 				borderRadius: "8px",
-				background: "var(--dsw-alias-markdown-code-block)",
+				background: "var(--dsw-alias-bg-layer-1)",
 				border: "1px solid var(--dsw-alias-border-l1)"
 			},
 			hint: {
-				color: "var(--dsw-alias-label-tertiary)",
+				color: "var(--dsw-alias-label-secondary)",
 				fontSize: "12px",
 				lineHeight: "18px"
 			}
@@ -483,7 +500,7 @@ window.__ModuleLoader__.load({
 			}), "dsh-font: settings row dictionaries");
 
 			// Row store mirror; written only by this plugin's apply actions.
-			const store = (0, _runtime_client.defineStore)({
+			const store = (0, _client_store.defineStore)({
 				init: () => ({
 					ui: DEFAULT_FONT,
 					code: DEFAULT_FONT,
